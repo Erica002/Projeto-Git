@@ -34,7 +34,7 @@ export function Home({navigation}) {
       try{
           await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify( vetData ) );
       }catch(error){
-          Alert.alert("Erro na gravação de contatos");
+          Alert.alert("Erro no salvamento de usuários");
       } 
 
       setNickname('');  
