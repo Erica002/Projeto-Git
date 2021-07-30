@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {StyleSheet, Text, View, Keyboard, FlatList} from 'react-native';
+import {StyleSheet, Text, View, Keyboard, FlatList, Alert} from 'react-native';
 import {AntDesign} from '@expo/vector-icons'; 
 import GlobalStyle from '../styles/GlobalStyle';
 import Theme from '../styles/Theme';
@@ -34,38 +34,38 @@ export function Home({navigation}) {
       try{
           await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify( vetData ) );
       }catch(error){
-          Alert.alert("Erro no salvamento de usuários");
+        console.error(error);
+        console.log(obj);
       } 
 
       setNickname('');  
-      loadData(); 
-      console.log(obj);
+      Keyboard.dismiss();
+      loadData();
 
     }catch(error){
-    console.error(error);
+    Alert.alert("Erro na gravação de usuário. Tente novamente!");
     }
   }
 
   async function loadData(){
     try{
-      const retorno = await AsyncStorage.getItem(  keyAsyncStorage  );   
-      const teste = JSON.parse( retorno )
-      console.log( teste );
-      setUsers( teste || [] );
-    }catch(error){
+        const retorno = await AsyncStorage.getItem(  keyAsyncStorage  );   
+        const teste = JSON.parse( retorno )
+        setUsers( teste || [] );
+      }catch(error){
         Alert.alert("Erro na leitura dos dados");
     }
   }
     useEffect( ()=>{
-      loadData();      
-    } , []);
+      navigation.addListener('focus', ()=> loadData());
+    }, [navigation]);
 
   return (
 
     <View style={GlobalStyle.container}>
       <AntDesign name="github" size={98} color={'#736AFF'} />  
       <Text style={styles.title}>GIT.Networking </Text>
-      <Input placeholder="Adicione o nickname do usuário"  onChangeText={setNickname} 
+      <Input placeholder="Adicione o nickname do usuário" onChangeText={setNickname} 
        onPress={handleSearchUser} />
 
       <FlatList  data={users}  
