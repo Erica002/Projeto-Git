@@ -5,12 +5,15 @@ import Theme from '../styles/Theme';
 import api from '../services/api';
 import {FontAwesome5} from '@expo/vector-icons'; 
 import {MaterialCommunityIcons} from '@expo/vector-icons'; 
+import {AsyncStorage} from 'react-native';
 
-export function Details({ route }) {
+export function Details({ navigation, route }) {
   
+  const keyAsyncStorage = "@GIT.NETWORK:usuarios";
+
   const [user, setUser] = useState({});
 
-  async function carregarUsuarios( nickname ){
+  async function carregarUsuarios(nickname){
     try {
       response = await api.get('/users/' + nickname);
       const {data} = response;
@@ -28,17 +31,29 @@ export function Details({ route }) {
       }
 
       setUser(obj);
-      console.log(obj);
 
     } catch (error) {
       console.error(error);
     }
   }
+
+  async function deletarUsuario(id) {
+    try {
+        const retorno = await AsyncStorage.getItem(keyAsyncStorage);
+        const teste = JSON.parse(retorno);
+
+        const newData = teste.filter(item => item.id != id);
+        await AsyncStorage.setItem(keyAsyncStorage, JSON.stringify(newData));
+        navigation.navigate('home');
+
+    } catch(error) {
+        console.error(error);
+    }
+  }
   
   useEffect(()=>{
-      const { user } = route.params;
-      carregarUsuarios( user );
-    
+    const { user } = route.params;
+    carregarUsuarios( user );  
   },[]);
 
   return (
@@ -72,7 +87,7 @@ export function Details({ route }) {
          </View>
         
         <View>
-          <TouchableOpacity style= {styles.buttonRemove}>
+          <TouchableOpacity style= {styles.buttonRemove} onPress={() => deletarUsuario(user.id)}>
             <Text style={styles.textButton}> Remover </Text>
           </TouchableOpacity> 
         </View>
